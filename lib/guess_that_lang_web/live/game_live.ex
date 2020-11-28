@@ -11,6 +11,7 @@ let b = 2;"
      assign(socket,
        snippet: snippet,
        choices: choices,
+       correct_answer: "JavaScript",
        has_answered: false,
        is_correct: false
      )}
@@ -18,7 +19,22 @@ let b = 2;"
 
   @impl true
   def handle_event("answer", %{"choice" => choice}, socket) do
-    is_correct = choice == "JavaScript"
+    is_correct = choice == socket.assigns.correct_answer
     {:noreply, assign(socket, has_answered: true, is_correct: is_correct)}
+  end
+
+  @impl true
+  def handle_event("next", _value, socket) do
+    snippet = "def a(1), do: true"
+    choices = ["Ruby", "Elixir", "Clojure", "Python"]
+
+    {:noreply,
+     assign(socket,
+       snippet: snippet,
+       choices: choices,
+       correct_answer: "Elixir",
+       has_answered: false,
+       is_correct: false
+     )}
   end
 end
