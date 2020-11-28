@@ -17,7 +17,7 @@ defmodule GuessThatLangWeb.Router do
   scope "/", GuessThatLangWeb do
     pipe_through :browser
 
-    live "/", PageLive, :index
+    live "/game", GameLive, :index
   end
 
   # Other scopes may use custom stacks.

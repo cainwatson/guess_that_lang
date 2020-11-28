@@ -1,0 +1,16 @@
+<section>
+  <h1>Guess That Lang!</h1>
+  <pre><code><%= @snippet %></code></pre>
+  <%= for choice <- @choices do %>
+    <button phx-click="answer" phx-value-choice="<%= choice %>">
+      <%= choice %>
+    </button>
+  <% end %>
+  <%= if @has_answered do %>
+    <%= if @is_correct do %>
+      <p>Correct!<p>
+    <% else %>
+      <p>Incorrect</p>
+    <% end %>
+  <% end %>
+</section>
