@@ -2,7 +2,11 @@
   <h1>Guess That Lang!</h1>
   <pre><code><%= @snippet %></code></pre>
   <%= for choice <- @choices do %>
-    <button phx-click="answer" phx-value-choice="<%= choice %>">
+    <button
+      phx-click="answer"
+      phx-value-choice="<%= choice %>"
+      <%= if @has_answered, do: "disabled", else: "" %>
+    >
       <%= choice %>
     </button>
   <% end %>
