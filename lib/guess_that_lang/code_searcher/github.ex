@@ -1,6 +1,11 @@
 defmodule GuessThatLang.CodeSearcher.Github do
+  @topics [
+    "app",
+    "arduino"
+  ]
+
   def search(opts) do
-    query = "app"
+    query = Enum.random(@topics)
     language = Keyword.fetch!(opts, :langauge)
 
     {200, %{"items" => items}, _response} =
