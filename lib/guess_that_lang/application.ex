@@ -8,7 +8,7 @@ defmodule GuessThatLang.Application do
   def start(_type, _args) do
     children = [
       # Start the Ecto repository
-      GuessThatLang.Repo,
+      # GuessThatLang.Repo,
       # Start the Telemetry supervisor
       GuessThatLangWeb.Telemetry,
       # Start the PubSub system

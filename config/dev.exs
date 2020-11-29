@@ -65,9 +65,6 @@ config :guess_that_lang, GuessThatLangWeb.Endpoint,
     ]
   ]
 
-config :guess_that_lang, GuessThatLang.CodeSearcher.Github,
-  github_access_token: System.get_env("GITHUB_ACCESS_TOKEN")
-
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 
