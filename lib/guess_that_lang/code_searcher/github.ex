@@ -20,8 +20,9 @@ defmodule GuessThatLang.CodeSearcher.Github do
     {:ok, content_raw} = Base.decode64(content_base64, ignore: :whitespace)
 
     lines = String.split(content_raw, "\n")
-    start_line_number = 0
-    end_line_number = 10
+    number_of_lines = Enum.random(8..14)
+    start_line_number = Enum.random(0..abs(length(lines) - 1 - number_of_lines))
+    end_line_number = start_line_number + number_of_lines
 
     content_raw_subset =
       lines
