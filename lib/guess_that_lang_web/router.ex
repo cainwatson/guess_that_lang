@@ -17,6 +17,7 @@ defmodule GuessThatLangWeb.Router do
   scope "/", GuessThatLangWeb do
     pipe_through :browser
 
+    live "/", GameLive, :index
     live "/game", GameLive, :index
   end
 
