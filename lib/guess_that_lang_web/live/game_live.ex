@@ -31,39 +31,34 @@ defmodule GuessThatLangWeb.GameLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    %{snippet: snippet, choices: choices, correct_answer: correct_answer} = load_prompt()
+    socket =
+      if connected?(socket) do
+        fetch_snippet(socket)
+      else
+        assign(socket,
+          is_correct: false,
+          has_answered: false,
+          choices: [],
+          correct_answer: nil,
+          snippet: nil
+        )
+      end
 
-    {:ok,
-     assign(socket,
-       snippet: snippet,
-       choices: choices,
-       correct_answer: correct_answer,
-       has_answered: false,
-       is_correct: false
-     )}
+    {:ok, socket}
   end
 
   @impl true
   def handle_event("answer", %{"choice" => choice}, socket) do
     is_correct = choice == socket.assigns.correct_answer
-    {:noreply, assign(socket, has_answered: true, is_correct: is_correct)}
+    {:noreply, assign(socket, is_correct: is_correct, has_answered: true)}
   end
 
   @impl true
   def handle_event("next", _value, socket) do
-    %{snippet: snippet, choices: choices, correct_answer: correct_answer} = load_prompt()
-
-    {:noreply,
-     assign(socket,
-       snippet: snippet,
-       choices: choices,
-       correct_answer: correct_answer,
-       has_answered: false,
-       is_correct: false
-     )}
+    {:noreply, fetch_snippet(socket)}
   end
 
-  defp load_prompt do
+  defp fetch_snippet(socket) do
     choices =
       @languages
       |> Enum.shuffle()
@@ -73,15 +68,23 @@ defmodule GuessThatLangWeb.GameLive do
 
     case GuessThatLang.CodeSearcher.search(langauge: correct_answer) do
       {:ok, %{content: snippet}} ->
-        %{choices: choices, correct_answer: correct_answer, snippet: snippet}
+        assign(socket,
+          is_correct: false,
+          has_answered: false,
+          choices: choices,
+          correct_answer: correct_answer,
+          snippet: snippet
+        )
 
       _ ->
-        %{
+        assign(socket,
+          is_correct: false,
+          has_answered: false,
           choices: ["javascript", "python", "java", "haskell"],
           correct_answer: "javascript",
           snippet: "const a = 2;
-let b = 2;"
-        }
+    let b = 2;"
+        )
     end
   end
 end
