@@ -66,7 +66,7 @@ defmodule GuessThatLangWeb.GameLive do
 
     correct_answer = Enum.random(choices)
 
-    case GuessThatLang.CodeSearcher.search(langauge: correct_answer) do
+    case GuessThatLang.CodeSearcher.search(language: correct_answer) do
       {:ok, %{content: snippet}} ->
         assign(socket,
           is_correct: false,

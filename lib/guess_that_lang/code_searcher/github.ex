@@ -6,7 +6,7 @@ defmodule GuessThatLang.CodeSearcher.Github do
 
   def search(opts) do
     query = Enum.random(@topics)
-    language = Keyword.fetch!(opts, :langauge)
+    language = Keyword.fetch!(opts, :language)
 
     {200, %{"items" => items}, _response} =
       Tentacat.Search.code(
