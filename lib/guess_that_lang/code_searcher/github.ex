@@ -8,17 +8,8 @@ defmodule GuessThatLang.CodeSearcher.Github do
     query = Enum.random(@topics)
     language = Keyword.fetch!(opts, :language)
 
-    {200, %{"items" => items}, _response} =
-      Tentacat.Search.code(
-        client(),
-        %{
-          q: "#{query} language:#{language}",
-          per_page: 1
-        },
-        pagination: :none
-      )
+    item = fetch_snippet(query: query, language: language)
 
-    item = Enum.random(items)
     owner = item["repository"]["owner"]["login"]
     repo = item["repository"]["name"]
     path = item["path"]
@@ -50,7 +41,26 @@ defmodule GuessThatLang.CodeSearcher.Github do
 
   defp client do
     config = Application.get_env(:guess_that_lang, __MODULE__)
-    access_token = Keyword.fetch!(config, :github_access_token)
+    access_token = Keyword.fetch!(config, :access_token)
     Tentacat.Client.new(%{access_token: access_token})
+  end
+
+  defp fetch_snippet(opts) do
+    config = Application.get_env(:guess_that_lang, __MODULE__)
+    query = Keyword.fetch!(opts, :query)
+    language = Keyword.fetch!(opts, :language)
+    batch_size = Keyword.fetch!(config, :batch_size)
+
+    {200, %{"items" => snippets}, _response} =
+      Tentacat.Search.code(
+        client(),
+        %{
+          q: "#{query} language:#{language}",
+          per_page: batch_size
+        },
+        pagination: :none
+      )
+
+    Enum.random(snippets)
   end
 end

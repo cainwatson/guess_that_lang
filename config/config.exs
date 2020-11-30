@@ -19,7 +19,8 @@ config :guess_that_lang, GuessThatLangWeb.Endpoint,
   live_view: [signing_salt: "HJdXqO4Z"]
 
 config :guess_that_lang, GuessThatLang.CodeSearcher.Github,
-  github_access_token: System.get_env("GITHUB_ACCESS_TOKEN")
+  access_token: System.get_env("GITHUB_ACCESS_TOKEN"),
+  batch_size: String.to_integer(System.get_env("GITHUB_BATCH_SIZE") || "10")
 
 # Configures Elixir's Logger
 config :logger, :console,
