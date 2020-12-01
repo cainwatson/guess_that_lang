@@ -14,7 +14,7 @@
     <%= if @is_correct do %>
       <p>Correct!<p>
     <% else %>
-      <p>Incorrect</p>
+      <p>Incorrect. The answer was <%= String.capitalize(@correct_answer) %>.</p>
     <% end %>
     <button phx-click="next">Next</button>
   <% end %>
