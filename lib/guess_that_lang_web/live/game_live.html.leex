@@ -1,6 +1,6 @@
-<section>
-  <h1>Guess That Lang!</h1>
-  <pre><code><%= @snippet %></code></pre>
+<section class="game">
+  <h1 class="game__title">Guess That Lang!</h1>
+  <pre class="game__code <%= if not connected?(@socket), do: "loading" %>"><code><%= @snippet %></code></pre>
   <%= for choice <- @choices do %>
     <button
       phx-click="answer"
@@ -12,7 +12,7 @@
   <% end %>
   <%= if @has_answered do %>
     <%= if @is_correct do %>
-      <p>Correct!<p>
+      <p>Correct!</p>
     <% else %>
       <p>Incorrect. The answer was <%= String.capitalize(@correct_answer) %>.</p>
     <% end %>

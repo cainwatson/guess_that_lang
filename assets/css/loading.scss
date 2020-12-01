@@ -1,0 +1,31 @@
+.loading {
+  position: relative;
+  overflow: hidden;
+
+  ::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -150px;
+    top: 0;
+    height: 100%;
+    width: 80%;
+    background-image: linear-gradient(
+      to right,
+      #f4f5f6 0%,
+      rgba(0, 0, 0, 0.05) 20%,
+      #f4f5f6 40%,
+      #f4f5f6 100%
+    );
+    animation: shimmer 1s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    left: -150px;
+  }
+  to {
+    left: 100%;
+  }
+}

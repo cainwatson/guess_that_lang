@@ -77,6 +77,8 @@ defmodule GuessThatLangWeb.GameLive do
         )
 
       _ ->
+        Process.sleep(1000)
+
         assign(socket,
           is_correct: false,
           has_answered: false,
