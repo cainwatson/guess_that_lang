@@ -5,63 +5,44 @@ defmodule GuessThatLang.CodeSearcher.Github do
   ]
 
   def search(opts) do
-    query = Enum.random(@topics)
     language = Keyword.fetch!(opts, :language)
 
-    item = fetch_snippet(query: query, language: language)
-
-    owner = item["repository"]["owner"]["login"]
-    repo = item["repository"]["name"]
-    path = item["path"]
-
-    {200, %{"encoding" => "base64", "content" => content_base64}, _response} =
-      Tentacat.Contents.find(client(), owner, repo, path)
-
-    {:ok, content_raw} = Base.decode64(content_base64, ignore: :whitespace)
-
-    lines = String.split(content_raw, "\n")
-    number_of_lines = Enum.random(8..14)
-    start_line_number = Enum.random(0..abs(length(lines) - 1 - number_of_lines))
-    end_line_number = start_line_number + number_of_lines
-
-    content_raw_subset =
-      lines
-      |> Enum.slice(start_line_number..end_line_number)
-      |> Enum.join("\n")
-
-    {:ok,
-     %{
-       content: content_raw_subset,
-       language: language,
-       repository_full_name: item["repository"]["full_name"],
-       file_name: item["name"],
-       file_path: item["path"],
-       file_url: item["html_url"]
-     }}
+    with {:ok, codes} <- fetch_code(language: language),
+         {:ok, content_base64} <- Enum.random(codes) |> fetch_content(),
+         {:ok, content_raw} <- Base.decode64(content_base64, ignore: :whitespace) do
+      {:ok, %{content: content_raw, language: language}}
+    end
   end
 
+  defp config, do: Application.get_env(:guess_that_lang, __MODULE__)
+
   defp client do
-    config = Application.get_env(:guess_that_lang, __MODULE__)
-    access_token = Keyword.fetch!(config, :access_token)
+    access_token = Keyword.fetch!(config(), :access_token)
     Tentacat.Client.new(%{access_token: access_token})
   end
 
-  defp fetch_snippet(opts) do
-    config = Application.get_env(:guess_that_lang, __MODULE__)
-    query = Keyword.fetch!(opts, :query)
+  defp fetch_code(opts) do
+    batch_size = Keyword.fetch!(config(), :batch_size)
     language = Keyword.fetch!(opts, :language)
-    batch_size = Keyword.fetch!(config, :batch_size)
+    query = Enum.random(@topics)
 
-    {200, %{"items" => snippets}, _response} =
-      Tentacat.Search.code(
-        client(),
-        %{
-          q: "#{query} language:#{language}",
-          per_page: batch_size
-        },
-        pagination: :none
-      )
+    params = %{
+      q: "#{query} language:#{language}",
+      per_page: batch_size
+    }
 
-    Enum.random(snippets)
+    with {200, %{"items" => codes}, _response} <-
+           Tentacat.Search.code(client(), params, pagination: :none),
+         do: {:ok, codes}
+  end
+
+  defp fetch_content(%{} = code) do
+    owner = code["repository"]["owner"]["login"]
+    repo = code["repository"]["name"]
+    path = code["path"]
+
+    with {200, %{"encoding" => "base64", "content" => content_base64}, _response} <-
+           Tentacat.Contents.find(client(), owner, repo, path),
+         do: {:ok, content_base64}
   end
 end

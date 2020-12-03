@@ -33,7 +33,7 @@ defmodule GuessThatLangWeb.GameLive do
   def mount(_params, _session, socket) do
     socket =
       if connected?(socket) do
-        fetch_snippet(socket)
+        assign_snippet(socket)
       else
         assign(socket,
           is_correct: false,
@@ -55,10 +55,10 @@ defmodule GuessThatLangWeb.GameLive do
 
   @impl true
   def handle_event("next", _value, socket) do
-    {:noreply, fetch_snippet(socket)}
+    {:noreply, assign_snippet(socket)}
   end
 
-  defp fetch_snippet(socket) do
+  defp assign_snippet(socket) do
     choices =
       @languages
       |> Enum.shuffle()
@@ -66,27 +66,24 @@ defmodule GuessThatLangWeb.GameLive do
 
     correct_answer = Enum.random(choices)
 
-    case GuessThatLang.CodeSearcher.search(language: correct_answer) do
-      {:ok, %{content: snippet}} ->
-        assign(socket,
-          is_correct: false,
-          has_answered: false,
-          choices: choices,
-          correct_answer: correct_answer,
-          snippet: snippet
-        )
+    with {:ok, %{content: content}} <- GuessThatLang.CodeSearcher.search(language: correct_answer) do
+      lines = String.split(content, "\n")
+      number_of_lines = Enum.random(8..14)
+      start_line_number = Enum.random(0..abs(length(lines) - 1 - number_of_lines))
+      end_line_number = start_line_number + number_of_lines
 
-      _ ->
-        Process.sleep(1000)
+      snippet =
+        lines
+        |> Enum.slice(start_line_number..end_line_number)
+        |> Enum.join("\n")
 
-        assign(socket,
-          is_correct: false,
-          has_answered: false,
-          choices: ["javascript", "python", "java", "haskell"],
-          correct_answer: "javascript",
-          snippet: "const a = 2;
-    let b = 2;"
-        )
+      assign(socket,
+        is_correct: false,
+        has_answered: false,
+        choices: choices,
+        correct_answer: correct_answer,
+        snippet: snippet
+      )
     end
   end
 end
