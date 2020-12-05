@@ -1,6 +1,6 @@
 <section class="game">
   <h1 class="game__title">Guess That Lang!</h1>
-  <pre class="game__code <%= if not connected?(@socket), do: "loading" %>"><code><%= @snippet %></code></pre>
+  <pre class="game__code <%= if not connected?(@socket), do: "loading" %>"><%= for line <- String.split(@snippet || "", "\n") do %><code class="game__code_line"><%= line <> "\n" %></code><% end %></pre>
   <%= for choice <- @choices do %>
     <button
       phx-click="answer"

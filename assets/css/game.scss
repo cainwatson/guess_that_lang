@@ -14,6 +14,30 @@
 
   &__code {
     min-height: 300px;
+    padding: 1em 0;
     font-size: 2rem;
+    border: unset;
+    counter-reset: line-number;
+
+    > code {
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  &__code_line {
+    margin: 0;
+    padding: 0;
+    counter-increment: line-number;
+
+    &:before {
+      display: inline-block;
+      padding-right: 0.8em;
+      content: counter(line-number);
+      width: 3em;
+      margin: 0 auto;
+      padding: 0;
+      text-align: right;
+    }
   }
 }
