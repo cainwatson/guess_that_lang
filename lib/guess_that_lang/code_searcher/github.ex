@@ -27,7 +27,7 @@ defmodule GuessThatLang.CodeSearcher.Github do
     query = Enum.random(@topics)
 
     params = %{
-      q: "#{query} language:#{language}",
+      q: "#{query} language:\"#{language}\"",
       per_page: batch_size
     }
 
