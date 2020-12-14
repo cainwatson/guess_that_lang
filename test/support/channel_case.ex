@@ -27,14 +27,4 @@ defmodule GuessThatLangWeb.ChannelCase do
       @endpoint GuessThatLangWeb.Endpoint
     end
   end
-
-  setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(GuessThatLang.Repo)
-
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(GuessThatLang.Repo, {:shared, self()})
-    end
-
-    :ok
-  end
 end
