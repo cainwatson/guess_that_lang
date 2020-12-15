@@ -46,6 +46,7 @@ defmodule GuessThatLangWeb.GameLive do
     "TypeScript",
     "Visual Basic .NET"
   ]
+  @min_snippet_length 8
 
   @impl true
   def mount(_params, _session, socket) do
@@ -86,9 +87,7 @@ defmodule GuessThatLangWeb.GameLive do
 
     with {:ok, %{content: content}} <- GuessThatLang.CodeSearcher.search(language: correct_answer) do
       lines = String.split(content, "\n")
-      number_of_lines = Enum.random(8..14)
-      start_line_number = Enum.random(0..abs(length(lines) - 1 - number_of_lines))
-      end_line_number = start_line_number + number_of_lines
+      {start_line_number, end_line_number} = calculate_file_subset(lines)
 
       snippet =
         lines
@@ -103,5 +102,18 @@ defmodule GuessThatLangWeb.GameLive do
         snippet: snippet
       )
     end
+  end
+
+  defp calculate_file_subset(lines) when length(lines) < @min_snippet_length do
+    {0, length(lines)}
+  end
+
+  defp calculate_file_subset(lines) do
+    number_of_lines = Enum.random(@min_snippet_length..14)
+
+    start_line_number = Enum.random(0..abs(length(lines) - 1 - number_of_lines))
+    end_line_number = start_line_number + number_of_lines
+
+    {start_line_number, end_line_number}
   end
 end
