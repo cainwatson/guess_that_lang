@@ -1,4 +1,6 @@
 defmodule GuessThatLang.CodeSearcher.Github do
+  @behaviour GuessThatLang.CodeSearcher
+
   require Logger
 
   @topics [
@@ -6,6 +8,7 @@ defmodule GuessThatLang.CodeSearcher.Github do
     "arduino"
   ]
 
+  @impl true
   def search(opts) do
     language = Keyword.fetch!(opts, :language)
 
@@ -31,7 +34,7 @@ defmodule GuessThatLang.CodeSearcher.Github do
     {limit, _} = Integer.parse(limit)
     {remaining, _} = Integer.parse(remaining)
     {reset, _} = Integer.parse(reset)
-        reset = DateTime.from_unix!(reset)
+    reset = DateTime.from_unix!(reset)
 
     half_limit = Integer.floor_div(limit, 2)
     three_quarters_limit = Integer.floor_div(limit, 3)
@@ -42,7 +45,10 @@ defmodule GuessThatLang.CodeSearcher.Github do
         {:error, {:rate_limit_reached, response}}
 
       remaining in [half_limit, three_quarters_limit, 1] ->
-        Logger.warn("Github rate limit status: #{remaining}/#{limit} remaining. Resets at #{reset}")
+        Logger.warn(
+          "Github rate limit status: #{remaining}/#{limit} remaining. Resets at #{reset}"
+        )
+
         :ok
 
       true ->

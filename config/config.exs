@@ -7,9 +7,6 @@
 # General application configuration
 use Mix.Config
 
-# config :guess_that_lang,
-#   ecto_repos: [GuessThatLang.Repo]
-
 # Configures the endpoint
 config :guess_that_lang, GuessThatLangWeb.Endpoint,
   url: [host: "localhost"],
@@ -17,6 +14,8 @@ config :guess_that_lang, GuessThatLangWeb.Endpoint,
   render_errors: [view: GuessThatLangWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: GuessThatLang.PubSub,
   live_view: [signing_salt: "HJdXqO4Z"]
+
+config :guess_that_lang, GuessThatLang.CodeSearcher, searcher: GuessThatLang.CodeSearcher.Github
 
 config :guess_that_lang, GuessThatLang.CodeSearcher.Github,
   access_token: System.get_env("GITHUB_ACCESS_TOKEN"),
