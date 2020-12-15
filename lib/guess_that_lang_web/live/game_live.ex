@@ -46,7 +46,7 @@ defmodule GuessThatLangWeb.GameLive do
     "TypeScript",
     "Visual Basic .NET"
   ]
-  @min_snippet_length 8
+  @min_snippet_length Application.get_env(:guess_that_lang, :min_snippet_length)
 
   @impl true
   def mount(_params, _session, socket) do

@@ -15,6 +15,9 @@ config :guess_that_lang, GuessThatLangWeb.Endpoint,
   pubsub_server: GuessThatLang.PubSub,
   live_view: [signing_salt: "HJdXqO4Z"]
 
+config :guess_that_lang,
+  min_snippet_length: 8
+
 config :guess_that_lang, GuessThatLang.CodeSearcher, searcher: GuessThatLang.CodeSearcher.Github
 
 config :guess_that_lang, GuessThatLang.CodeSearcher.Github,
