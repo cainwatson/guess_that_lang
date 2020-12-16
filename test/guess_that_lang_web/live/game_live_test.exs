@@ -12,10 +12,20 @@ defmodule GuessThatLangWeb.PageLiveTest do
     GuessThatLang.CodeSearcher.MockSearcher
     |> expect(:search, &search_payload_elixir/1)
 
-    {:ok, view, disconnected_html} = live(conn, "/")
+    {:ok, view, _html} = live(conn, "/")
 
-    assert disconnected_html =~ "Guess That Lang!"
     assert render(view) =~ "defmodule Hello do"
+  end
+
+  test "renders answer choices", %{conn: conn} do
+    GuessThatLang.CodeSearcher.MockSearcher
+    |> expect(:search, &search_payload_elixir/1)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert has_element?(view, "button:nth-of-type(4)")
+    # Doesn't pass because the view determines the language to search for
+    # assert has_element?(view, "button", "Elixir")
   end
 
   test "renders another code snippet after next", %{conn: conn} do
@@ -24,7 +34,7 @@ defmodule GuessThatLangWeb.PageLiveTest do
     |> expect(:search, &search_payload_javascript/1)
     |> expect(:search, &search_payload_elixir/1)
 
-    {:ok, view, _disconnected_html} = live(conn, "/")
+    {:ok, view, _html} = live(conn, "/")
 
     assert render_click(view, "next") =~ "const express = require("
     assert render_click(view, "next") =~ "defmodule Hello do"
