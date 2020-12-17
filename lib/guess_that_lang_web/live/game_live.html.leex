@@ -1,6 +1,14 @@
 <section class="game">
   <h1 class="game__title">Guess That Lang!</h1>
-  <pre class="game__code <%= if not connected?(@socket), do: "loading" %>"><code><%= @snippet %></code></pre>
+  <div class="game__code">
+    <%= if connected?(@socket) && @snippet.start_line_number != 0 do %>
+      <button phx-click="show_more" phx-value-direction="above" class="game__show_more game__show_more--above" label="Load more"></button>
+    <% end %>
+    <pre class="game__snippet <%= if not connected?(@socket), do: "loading" %>"><code><%= @snippet.content %></code></pre>
+    <%= if connected?(@socket) && @snippet.end_line_number != length(@file_lines) do %>
+      <button phx-click="show_more" phx-value-direction="below" class="game__show_more game__show_more--below" label="Load more"></button>
+    <% end %>
+  </div>
   <%= for choice <- @choices do %>
     <button
       phx-click="answer"

@@ -16,7 +16,8 @@ config :guess_that_lang, GuessThatLangWeb.Endpoint,
   live_view: [signing_salt: "HJdXqO4Z"]
 
 config :guess_that_lang,
-  min_snippet_length: 8
+  min_snippet_length: 8,
+  show_more_lines: 4
 
 config :guess_that_lang, GuessThatLang.CodeSearcher, searcher: GuessThatLang.CodeSearcher.Github
 
