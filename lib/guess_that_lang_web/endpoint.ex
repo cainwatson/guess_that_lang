@@ -1,20 +1,11 @@
 defmodule GuessThatLangWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :guess_that_lang
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  @session_options [
-    store: :cookie,
-    key: "_guess_that_lang_key",
-    signing_salt: "Gv059gEB"
-  ]
-
   socket "/socket", GuessThatLangWeb.UserSocket,
     websocket: true,
     longpoll: false
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket "/live", Phoenix.LiveView.Socket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -49,6 +40,5 @@ defmodule GuessThatLangWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
-  plug Plug.Session, @session_options
   plug GuessThatLangWeb.Router
 end
