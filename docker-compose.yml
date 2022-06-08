@@ -1,0 +1,14 @@
+version: '2.4'
+
+services:
+  app:
+    build: ./
+    ports:
+      - 4000:4000
+    environment:
+      - GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
+    volumes:
+      - ./:/app
+      - /app/deps
+      - /app/_build
+      - /app/assets/node_modules
