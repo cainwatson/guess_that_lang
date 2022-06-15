@@ -50,29 +50,43 @@ defmodule GuessThatLangWeb.GameLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    socket =
-      if connected?(socket) do
-        assign_snippet(socket)
-      else
-        assign(socket,
-          is_correct: false,
-          has_answered: false,
-          choices: [],
-          correct_answer: nil,
-          snippet: nil
-        )
-      end
+    socket = assign(socket,
+      hard_mode: false,
+      is_correct: false,
+      has_answered: false,
+      choices: [],
+      correct_answer: nil,
+      snippet: nil,
+      # game_options_changeset:
+    )
+    socket = if connected?(socket) do
+               assign_snippet(socket)
+             else
+               socket
+             end
 
     {:ok, socket}
   end
 
   @impl true
+  def handle_event("toggle-hard-mode", %{"value" => "on"}, socket) do
+    {:noreply, assign(socket, hard_mode: true) |> assign_snippet}
+  end
+
+  def handle_event("toggle-hard-mode", _, socket) do
+    {:noreply, assign(socket, hard_mode: false)}
+  end
+
+  def handle_event("answer-hard-mode", a, socket) do
+    IO.inspect a
+    {:noreply, socket}
+  end
+
   def handle_event("answer", %{"choice" => choice}, socket) do
     is_correct = choice == socket.assigns.correct_answer
     {:noreply, assign(socket, is_correct: is_correct, has_answered: true)}
   end
 
-  @impl true
   def handle_event("next", _value, socket) do
     {:noreply, assign_snippet(socket)}
   end

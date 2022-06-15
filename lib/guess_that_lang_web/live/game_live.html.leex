@@ -1,15 +1,40 @@
 <section class="game">
-  <h1 class="game__title">Guess That Lang!</h1>
+  <header class="game__header">
+    <h1 class="game__title">Guess That Lang!</h1>
+    <label class="game__hardmode-switch">
+      <input
+        type="checkbox"
+        phx-click="toggle-hard-mode"
+        <%= if @hard_mode, do: "checked" %>
+      />
+      Hard Mode
+    </label>
+  </header>
   <pre class="game__code <%= if not connected?(@socket), do: "loading" %>"><code><%= @snippet %></code></pre>
-  <%= for choice <- @choices do %>
-    <button
-      phx-click="answer"
-      phx-value-choice="<%= choice %>"
-      <%= if @has_answered, do: "disabled" %>
-    >
-      <%= choice %>
-    </button>
+
+  <%= if @hard_mode do %>
+    <.form let={f} phx-change="validate" phx-submit="save">
+
+      <%= submit "Save" %>
+    </.form>
+
+    <form phx-change="answer-hard-mode">
+      <input type="text" phx-change />
+      <input type="submit" />
+    </form>
+  <% else %>
+    <%= for choice <- @choices do %>
+      <button
+        phx-click="answer"
+        phx-value-choice="<%= choice %>"
+        <%= if @has_answered, do: "disabled" %>
+      >
+        <%= choice %>
+      </button>
+    <% end %>
   <% end %>
+
+
   <%= if @has_answered do %>
     <%= if @is_correct do %>
       <p>Correct!</p>
