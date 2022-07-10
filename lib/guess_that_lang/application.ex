@@ -7,7 +7,9 @@ defmodule GuessThatLang.Application do
   use Application
 
   def start(_type, _args) do
-    Logger.info("Starting application on version: #{Application.get_env(:guess_that_lang, :version)}")
+    Logger.info(
+      "Starting application on version: #{Application.get_env(:guess_that_lang, :version)}"
+    )
 
     children = [
       # Start the Ecto repository
