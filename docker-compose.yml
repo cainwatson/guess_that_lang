@@ -2,7 +2,9 @@ version: '2.4'
 
 services:
   app:
-    build: ./
+    build:
+      context: ./
+      dockerfile: ./docker/dev.Dockerfile
     ports:
       - 4000:4000
     environment:

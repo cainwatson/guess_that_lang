@@ -16,13 +16,10 @@ config :guess_that_lang, GuessThatLangWeb.Endpoint,
   live_view: [signing_salt: "HJdXqO4Z"]
 
 config :guess_that_lang,
+  version: GuessThatLang.MixProject.project() |> Keyword.fetch!(:version),
   min_snippet_length: 8
 
 config :guess_that_lang, GuessThatLang.CodeSearcher, searcher: GuessThatLang.CodeSearcher.Github
-
-config :guess_that_lang, GuessThatLang.CodeSearcher.Github,
-  access_token: System.get_env("GITHUB_ACCESS_TOKEN"),
-  batch_size: String.to_integer(System.get_env("GITHUB_BATCH_SIZE") || "10")
 
 # Configures Elixir's Logger
 config :logger, :console,
