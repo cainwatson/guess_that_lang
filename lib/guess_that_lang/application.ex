@@ -12,8 +12,6 @@ defmodule GuessThatLang.Application do
     )
 
     children = [
-      # Start the Ecto repository
-      # GuessThatLang.Repo,
       # Start the Telemetry supervisor
       GuessThatLangWeb.Telemetry,
       # Start the PubSub system
