@@ -29,6 +29,10 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :guess_that_lang, GuessThatLang.CodeSearcher.Github,
+  access_token: System.get_env("GITHUB_ACCESS_TOKEN"),
+  batch_size: System.get_env("GITHUB_BATCH_SIZE", "10") |> String.to_integer()
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
