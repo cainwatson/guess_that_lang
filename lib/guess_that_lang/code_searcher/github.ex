@@ -4,8 +4,33 @@ defmodule GuessThatLang.CodeSearcher.Github do
   require Logger
 
   @topics [
+    "algorithm",
+    "android",
     "app",
-    "arduino"
+    "arduino",
+    "bot",
+    "cli",
+    "compiler",
+    "database",
+    "framework",
+    "frontend",
+    "game-engine",
+    "graphql",
+    "http",
+    "ios",
+    "json",
+    "library",
+    "macos",
+    "mobile",
+    "rest-api",
+    "security",
+    "server",
+    "serverless",
+    "shell",
+    "sql",
+    "terminal",
+    "testing",
+    "webapp"
   ]
 
   @impl true
@@ -65,6 +90,8 @@ defmodule GuessThatLang.CodeSearcher.Github do
       q: "#{query} language:\"#{language}\"",
       per_page: batch_size
     }
+
+    Logger.debug("Fetching code snippet: #{inspect(params)}")
 
     with {200, %{"items" => codes}, response} <-
            Tentacat.Search.code(client(), params, pagination: :none),
