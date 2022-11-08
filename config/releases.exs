@@ -2,7 +2,7 @@ import Config
 
 secret_key_base = System.fetch_env!("SECRET_KEY_BASE")
 port = System.fetch_env!("PORT")
-hostname = System.fetch_env!("HOSTNAME")
+hostname = System.fetch_env!("PHX_HOST")
 github_access_token = System.fetch_env!("GITHUB_ACCESS_TOKEN")
 github_batch_size = System.get_env("GITHUB_BATCH_SIZE") || "10"
 
