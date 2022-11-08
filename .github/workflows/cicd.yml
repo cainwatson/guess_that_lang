@@ -51,9 +51,9 @@ jobs:
           echo \$LATEST_TAG_VSN: $LATEST_TAG_VSN
           echo \$APP_VSN: $APP_VSN
           if [ "$LATEST_TAG_VSN" != "$APP_VSN" ]; then
-            echo "::set-output name=is-new-version::true"
-            echo "::set-output name=app-vsn::$APP_VSN"
-            echo "::set-output name=git-refs-url::https://api.github.com/repos/$GITHUB_REPOSITORY/git/refs"
+            echo "is-new-version=true" >> $GITHUB_OUTPUT
+            echo "app-vsn=$APP_VSN" >> $GITHUB_OUTPUT
+            echo "git-refs-url=https://api.github.com/repos/$GITHUB_REPOSITORY/git/refs" >> $GITHUB_OUTPUT
           fi
 
       - name: Create Tag
