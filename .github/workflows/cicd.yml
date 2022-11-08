@@ -1,12 +1,39 @@
-name: Create tag and deploy
+name: "Continuous Integration Checks and Deployment"
 
-on:
-  push:
-    branches: [main]
+on: push
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "23"
+          elixir-version: "1.11.4"
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v2
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - run: mix deps.get
+
+      - name: Run tests
+        run: |
+          mix compile --warnings-as-errors
+          mix format --check-formatted
+          mix test
+        env:
+          MIX_ENV: test
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [test]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -40,16 +67,12 @@ jobs:
           }
           EOF
 
-      - if: steps.check-new-version.outputs.is-new-version
-        run: |
-          # Renaming/moving prod dockerfile since the heroku container:push
-          # command needs to have a dockerfile without prefixes to work
-          cp docker/prod.Dockerfile Dockerfile
-
-      - name: Build, Push and Deploy to Heroku
+      - name: Install flyctl
         if: steps.check-new-version.outputs.is-new-version
-        uses: cainwatson/heroku-deploy@v3.0.0
-        with:
-          email: ${{ secrets.HEROKU_EMAIL }}
-          api_key: ${{ secrets.HEROKU_API_KEY }}
-          app_name: ${{ secrets.HEROKU_APP_NAME }}
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy new release
+        if: steps.check-new-version.outputs.is-new-version
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
