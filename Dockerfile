@@ -1,4 +1,4 @@
-FROM node:14.12.0-alpine AS node
+FROM node:16-alpine AS node
 
 FROM elixir:1.11-alpine AS build
 
