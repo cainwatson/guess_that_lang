@@ -1,95 +1,53 @@
-# Find eligible builder and runner images on Docker Hub. We use Ubuntu/Debian instead of
-# Alpine to avoid DNS resolution issues in production.
-#
-# https://hub.docker.com/r/hexpm/elixir/tags?page=1&name=ubuntu
-# https://hub.docker.com/_/ubuntu?tab=tags
-#
-#
-# This file is based on these images:
-#
-#   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
-#   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20210902-slim - for the release image
-#   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: hexpm/elixir:1.12.3-erlang-24.3.4.1-debian-bullseye-20210902-slim
-#
-ARG ELIXIR_VERSION=1.12.3
-ARG OTP_VERSION=24.3.4.1
-ARG DEBIAN_VERSION=bullseye-20210902-slim
+FROM node:14.12.0-alpine AS node
 
-ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
-ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
+FROM elixir:1.11-alpine AS build
 
-FROM ${BUILDER_IMAGE} as builder
+ENV MIX_ENV=prod
 
-# install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git \
-    && apt-get clean && rm -f /var/lib/apt/lists/*_*
+COPY --from=node /usr/lib /usr/lib
+COPY --from=node /usr/local/share /usr/local/share
+COPY --from=node /usr/local/lib /usr/local/lib
+COPY --from=node /usr/local/include /usr/local/include
+COPY --from=node /usr/local/bin /usr/local/bin
 
-# prepare build dir
+RUN apk --no-cache add git build-base python3
+
+RUN mix do local.hex --force, local.rebar --force
+
 WORKDIR /app
 
-# install hex + rebar
-RUN mix local.hex --force && \
-    mix local.rebar --force
-
-# set build ENV
-ENV MIX_ENV="prod"
-
-# install mix dependencies
 COPY mix.exs mix.lock ./
-RUN mix deps.get --only $MIX_ENV
-RUN mkdir config
+COPY config ./config
+RUN mix do deps.get --only $MIX_ENV, deps.compile
 
-# copy compile-time config files before we compile dependencies
-# to ensure any relevant config change will trigger the dependencies
-# to be re-compiled.
-COPY config/config.exs config/${MIX_ENV}.exs config/
-RUN mix deps.compile
+COPY assets ./assets
+RUN cd ./assets \
+  && npm install \
+  && npm run deploy \
+  && cd ../ \
+  && mix phx.digest
 
-COPY priv priv
-
-COPY lib lib
-
-COPY assets assets
-
-# compile assets
-RUN mix assets.deploy
-
-# Compile the release
+COPY priv ./priv
+COPY lib ./lib
 RUN mix compile
 
-# Changes to config/runtime.exs don't require recompiling the code
-COPY config/runtime.exs config/
-
-COPY rel rel
+COPY rel ./rel
 RUN mix release
 
-# start a new build stage so that the final image will only contain
-# the compiled release and other runtime necessities
-FROM ${RUNNER_IMAGE}
+FROM alpine:3.16 AS app
 
-RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales \
-  && apt-get clean && rm -f /var/lib/apt/lists/*_*
+ENV MIX_ENV=prod
+ENV APP_NAME=guess_that_lang
 
-# Set the locale
-RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+WORKDIR /app
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+RUN apk --no-cache add bash openssl
 
-WORKDIR "/app"
-RUN chown nobody /app
+COPY --from=build /app/_build/prod/rel/$APP_NAME ./
+COPY docker/entrypoint.sh ./
 
-# set runner ENV
-ENV MIX_ENV="prod"
-
-# Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/guess_that_lang ./
-
+RUN chown -R nobody: /app
 USER nobody
+ENV HOME=/app
 
-CMD ["/app/bin/server"]
-# Appended by flyctl
-ENV ECTO_IPV6 true
-ENV ERL_AFLAGS "-proto_dist inet6_tcp"
+ENTRYPOINT ["bash", "./entrypoint.sh"]
